@@ -5,8 +5,6 @@ import notes from './services/notes'
 import Notification from './components/Notification';
 
 
-
-
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
