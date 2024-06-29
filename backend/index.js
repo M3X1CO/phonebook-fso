@@ -1,5 +1,5 @@
 const express = require('express');
-const Person = require('./models/person'); // Ensure the model name is capitalized
+const Person = require('./models/person');
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3001;
