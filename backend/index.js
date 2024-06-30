@@ -1,5 +1,5 @@
 const express = require('express');
-const Person = require('./models/person');
+const Person = require('./models/person'); // Assuming you have a Person model
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -22,6 +22,7 @@ app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>');
 });
 
+// GET all persons
 app.get('/api/persons', (request, response, next) => {
   Person.find({})
     .then(persons => {
@@ -33,6 +34,7 @@ app.get('/api/persons', (request, response, next) => {
     });
 });
 
+// POST a new person
 app.post('/api/persons', (request, response, next) => {
   const body = request.body;
 
@@ -52,6 +54,7 @@ app.post('/api/persons', (request, response, next) => {
     .catch(error => next(error));
 });
 
+// GET a single person by ID
 app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then(person => {
@@ -64,28 +67,55 @@ app.get('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error));
 });
 
+// DELETE a person by ID
 app.delete('/api/persons/:id', (request, response, next) => {
-  Person.findByIdAndRemove(request.params.id)
-    .then(() => {
+  Person.findByIdAndDelete(request.params.id)
+    .then(result => {
       response.status(204).end();
     })
     .catch(error => next(error));
 });
 
+// PUT update a person by ID
+app.put('/api/persons/:id', (request, response, next) => {
+  const { name, number } = request.body;
+
+  const person = {
+    name: name,
+    number: number,
+  };
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      if (updatedPerson) {
+        response.json(updatedPerson);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch(error => next(error));
+});
+
+// Error handler middleware
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'Malformatted ID' });
+  }
+
+  next(error);
+};
+
+// Unknown endpoint middleware
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' });
 };
 
 app.use(unknownEndpoint);
+app.use(errorHandler);
 
-app.use((error, request, response, next) => {
-  console.error('Error:', error.message);
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'Malformatted ID' });
-  }
-  next(error);
-});
-
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
