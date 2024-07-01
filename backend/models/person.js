@@ -21,19 +21,19 @@ mongoose.connect(url)
   });
 
 const phoneValidator = (v) => {
-  const parts = v.split('-')
-  if(parts.lenth !== 2) {
-    return false
+  const parts = v.split('-');
+  if (parts.length !== 2) {
+    return false;
   }
-  const [firstPart, secondPart] = parts
+  const [firstPart, secondPart] = parts;
   if (firstPart.length < 2 || firstPart.length > 3 || !/^\d+$/.test(firstPart)) {
-    return false
+    return false;
   }
-  if (secondPart.length < 5 || /^\d+$/.test(secondPart)) {
-    return false
+  if (secondPart.length < 5 || !/^\d+$/.test(secondPart)) {
+    return false;
   }
-  return true
-}
+  return true;
+};
 
 const personSchema = new mongoose.Schema({
   name: {
@@ -47,7 +47,7 @@ const personSchema = new mongoose.Schema({
     validator: phoneValidator,
     message: props => `${props.value} is not a valid phone number!`
   },
-  required: true,
+  required: [true, 'User phone number required'],
   minLength: 8
   }
 });
